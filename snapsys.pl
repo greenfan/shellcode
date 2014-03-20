@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-#Original author Shawn Bater, adapted by Russell Dwyer
+#Original author Shawn Bater
 use strict;
 
 #original length value=288
