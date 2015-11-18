@@ -1,0 +1,74 @@
+#!/bin/bash
+# check for runaway processes and presence of core files
+#
+
+host=`hostname | cut -f1 -d.`
+date=`date  +%D`
+name=cores
+lsdate=`date | awk '{ print $2" "$3 }'`
+
+notifycmd="/usr/rsug/bin/cronmail \"${host}: $name report $date\""
+notifycmdp="/usr/rsug/bin/cronmail \"${host}: PROCS Warning $date\""
+#notifywho=its-login-admins-root@umich.edu
+notifywho=rndwyer@umich.edu
+
+# built in defaults
+# add more directories below to check for coredumps
+#
+
+cores=/var/spool/abrt
+
+# ls the directory with cores, grep & send via notifycmd
+#ls -la $cores | egrep '^[^\.]{1,}\.core\.[0-9]{1,}$' |grep "$lsdate"| eval ${notifycmd} ${notifywho}
+
+for i in `cat /etc/watchdogscripts/corelocations` ;
+do ls -al $i | egrep '^[^\.]{1,}\.core\.[0-9]{1,}$' | grep "$lsdate"  >> /tmp/watchdogcores.$$
+done
+if [ -s /tmp/watchdogcores.$$ ]; then
+    cat /tmp/watchdogcores.$$ | eval ${notifycmd} ${notifywho}
+fi
+
+
+rm -rf /tmp/watchdogcores.$$
+
+
+
+############BEGIN PS ################################
+. /etc/watchdogscripts/config
+
+cpucheck()
+{
+    ps --no-headers -eo pcpu,time,pid,ppid,user,comm | sed -e 's/\://g' | awk -v check=$1 -v time=$2 '$1 > check && $2 > time {printf "%4.1f %5d %5d %5d %8s %s\n", $1, $2, $3, $4, $5, $6}'
+}
+
+vmcheck()
+{
+    ps --no-headers -eo rss,time,pid,ppid,user,comm | sed -e 's/\://g' | awk -v check=$1 -v time=$2 '$1 > check && $2 > time {printf "%7s %5d %5d %5d %8s %s\n", $1, $2, $3, $4, $5, $6}'
+}
+
+
+# check for runaway processes
+cpucheck ${maxcpu:-10} ${cputime:-100} > /tmp/psnag.$$
+#cpucheck 1 1 > /tmp/psnag.$$
+if [ -s /tmp/psnag.$$ ]; then
+    echo "processes over maxcpu:" >> /tmp/watchdog.$$
+    cat /tmp/psnag.$$ >> /tmp/watchdog.$$
+    echo >> /tmp/watchdog.$$
+fi
+
+# check for processes approaching max vm limit
+vmcheck ${maxvm:-1000000} ${cputime:-100} > /tmp/psnag.$$
+if [ -s /tmp/psnag.$$ ]; then
+    echo "processes over maxvm:" >> /tmp/watchdog.$$
+    cat /tmp/psnag.$$ >> /tmp/watchdog.$$
+    echo >> /tmp/watchdog.$$
+fi
+
+
+if [ -s /tmp/watchdog.$$ ]; then
+    cat /tmp/watchdog.$$ | eval ${notifycmdp} ${notifywho}
+fi
+
+rm -f /tmp/watchdog.$$ /tmp/psnag.$$
+
+
