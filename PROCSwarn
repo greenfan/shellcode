@@ -2,38 +2,42 @@
 # check for runaway processes and presence of core files
 #
 
+
+
 host=`hostname | cut -f1 -d.`
 date=`date  +%D`
 name=cores
 lsdate=`date | awk '{ print $2" "$3 }'`
 
+
 notifycmd="/usr/rsug/bin/cronmail \"${host}: $name report $date\""
 notifycmdp="/usr/rsug/bin/cronmail \"${host}: PROCS Warning $date\""
-#notifywho=its-login-admins-root@umich.edu
-notifywho=rndwyer@umich.edu
+notifywho=rndwyer@*****
 
-# built in defaults
-# add more directories below to check for coredumps
-#
 
-cores=/var/spool/abrt
 
-# ls the directory with cores, grep & send via notifycmd
-#ls -la $cores | egrep '^[^\.]{1,}\.core\.[0-9]{1,}$' |grep "$lsdate"| eval ${notifycmd} ${notifywho}
 
-for i in `cat /etc/watchdogscripts/corelocations` ;
-do ls -al $i | egrep '^[^\.]{1,}\.core\.[0-9]{1,}$' | grep "$lsdate"  >> /tmp/watchdogcores.$$
+for i in `cat /etc/watchdogscripts/corelocations` ; do
+
+    found_files=`ls -la $i | egrep '^[^\.]{1,}\.core\.[0-9]{1,}$' |grep "$lsdate"` 
+    num_files=` echo "$found_files" | wc -l `
+	if [ -n "$found_files" ]
+	    then echo -en "Found "$num_files" corefiles inside of "$i"." >> /tmp/watchdogcores.$$ 
+	    echo -en "\n \n Corefiles found: "$found_files"" >> /tmp/watchdogcores.$$
+    	fi
 done
-if [ -s /tmp/watchdogcores.$$ ]; then
+	
+
+
+if [ -e /tmp/watchdogcores.$$ ] ; then
     cat /tmp/watchdogcores.$$ | eval ${notifycmd} ${notifywho}
 fi
-
 
 rm -rf /tmp/watchdogcores.$$
 
 
 
-############BEGIN PS ################################
+# Processes Checker 
 . /etc/watchdogscripts/config
 
 cpucheck()
@@ -47,6 +51,7 @@ vmcheck()
 }
 
 
+###########BEGIN
 # check for runaway processes
 cpucheck ${maxcpu:-10} ${cputime:-100} > /tmp/psnag.$$
 #cpucheck 1 1 > /tmp/psnag.$$
@@ -70,5 +75,3 @@ if [ -s /tmp/watchdog.$$ ]; then
 fi
 
 rm -f /tmp/watchdog.$$ /tmp/psnag.$$
-
-
