@@ -1,0 +1,24 @@
+#!/bin/bash
+# Check capacity of specific filesystems, the names of which are given to the script as arguments.
+# rndwyer
+
+# Find the appropriate filesystems and assign to a variable
+for i in "$@" ;
+do
+        disks2check=" $disks2check $( df -h | awk '{ print ( $(NF) ) }' | grep -v \dev\/mapper | grep $i )"
+done
+
+# Ensure that we gracefully exit when no filesystems are found
+checkVar=$( echo $disks2check | sed 's/ //g' )
+if [ -z "$checkVar" ]
+then echo "No disks found matchin $@" ; exit 0
+fi
+
+# Parse the disk2check variable
+disk2checkuniq=$( echo $disks2check | sed 's/ /\n/g' | sort | uniq )
+
+# Execute check_disk
+/usr/local/nagios/libexec/check_disk -w 10% -c 5% -W 10% -K 5% -R $disk2checkuniq
+
+RETVAL="$?"
+exit "$RETVAL"
