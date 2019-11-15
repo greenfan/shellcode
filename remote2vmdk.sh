@@ -1,4 +1,4 @@
-#!/bin/bas#
+#!/bin/bash
 # get a dd dump from the given host's given disk and create a compressed
 # image at the given target 
 #
