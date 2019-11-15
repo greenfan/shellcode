@@ -1,11 +1,6 @@
-#!/bin/bash
-# get a dd disk dump and convert it to vmware
-#  see http://stackoverflow.com/questions/454899/how-to-convert-flat-raw-disk-image-to-vmdk-for-virtualbox-or-vmplayer
-#  Author: wf  2014-10-1919
-
-#
+#!/bin/bas#
 # get a dd dump from the given host's given disk and create a compressed
-#   image at the given target 
+# image at the given target 
 #
 #  1: host e.g. somehost.somedomain
 #  2: disk e.g. sda
