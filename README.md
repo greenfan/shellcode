@@ -24,4 +24,5 @@ An old school project from professor Jay Nugent, invokes printf to tidy up STDOU
 ### os-versions.sh
 Collaboration with SCS Steve Simmons, from UofM ITS. The ultimate inventory management system for Unix / Linux UofM ITS machines.
 
-
+### socketsetup.sh
+Establishes a reverse ssh tunnel to your bastion, and keeps it up.
