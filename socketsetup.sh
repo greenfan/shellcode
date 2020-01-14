@@ -5,9 +5,9 @@ pids=$(pgrep ssh -a | grep R | awk '{print $1}')
 nums=$(pgrep ssh -a | grep R | awk '{print $1}'| wc -w)
 if [ "$nums" -ne 0 ]
         then
-                if [ "$nums" -ge "3" ]
+                if [ "$nums" -ge "2" ]
                 then kill -9 "$pids"
-                elif [ "$nums" -eq "2" ]
+                elif [ "$nums" -eq "1" ]
                 then exit 0
                 fi
 fi
