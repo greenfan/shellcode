@@ -26,3 +26,7 @@ Collaboration with SCS Steve Simmons, from UofM ITS. The ultimate inventory mana
 
 ### socketsetup.sh
 Establishes a reverse ssh tunnel to your bastion, and keeps it up.
+
+
+### vectra_detect_ips_parser.sh
+Parses Vectra network stats and saves numbers of hosts and respective subnet into a CSV file
