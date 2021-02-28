@@ -8,8 +8,11 @@ import random
 
 browser = webdriver.Firefox()
 
-data = ["gtaV cheats","chess","gta5 mods"]
-
+file = open("textlist.txt", "r" )
+memlist = file.read()
+textlist = memlist.split("\n")
+data = textlist
+print(data)
 
 
 
@@ -17,7 +20,7 @@ def slow_type(element, text):
     """Send a text to an element one character at a time with a delay."""
     for character in text:
         element.send_keys(character)
-        delay = (random.random())
+        delay = ((random.random() / 2 ))
         time.sleep(delay)
 
 
@@ -28,12 +31,20 @@ for i in data:
     slow_type(search, f"allintitle: {i}")
     search.send_keys(Keys.RETURN)
     time.sleep(5)
-    search_results = browser.find_element_by_id("result-stats")
+    try:
+        search_results = browser.find_element_by_id("result-stats")
+    except:
+        print(f"NA, {i}")
+        time.sleep(69)
+        continue
     result_text = search_results.get_attribute("innerText").split()
     result_count = result_text[1]
-    print(f"Got {result_count} results for {i}")
-    time.sleep(5)
+    print(f'''{result_count}, {i}''')
+    sleeptime = [ "20", "120",  "8", "11",  "77", "330", "50", "70", "36",  "61","120", "45", "77", "122", "60" ]
+    s = " "
+    gotosleep = s.join(random.choices(sleeptime))
+    print(f"sleeping for {gotosleep} seconds...")
+    time.sleep(int(gotosleep))
 
 
 browser.quit()
-
