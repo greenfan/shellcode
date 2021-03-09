@@ -37,7 +37,7 @@ print('''
          .-'      `-.           
        .'            `.         
       /                \        
-     ;    GOOGLE       ;`       
+     ;                 ;`       
      |      POWER      |;       
      ;       PROBER    ;|
      '\               / ;       
@@ -87,7 +87,7 @@ else:
 
 for i in data:
     try:
-        browser.get('https://www.google.com')
+        browser.get('https://www.tradingview.com')
     except:
         time.sleep(300)
         pass
@@ -101,12 +101,12 @@ for i in data:
     except:
         captchacheck = ''
         try:
-            captchacheck = browser.find_element_by_id("recaptcha")
+            captchacheck = browser.find_element_by_id("captcha")
         except:
             pass
         if captchacheck != '':
-            print("we got caught.. sleeping")
-            time.sleep(699)
+            print("hit max searches... taking a nap")
+            time.sleep(900)
         print(f"NA, {i}\n")
         result_file.write(f"NA, {i}\n")
         time.sleep(9)
