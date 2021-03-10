@@ -128,5 +128,6 @@ browser.quit()
 os.system("ps faux | grep -ie .*fire.* | awk '{prent $2}'")
 print("finished google search parsing, closing")
 time.sleep(3)
-os.system(" cat result.csv | sed s'/([^,]*//g' > $(date +%d%m)_result.csv ")
+os.system(" cat results.csv |  sed 's/\(\ \)*\(.*\)/\2/g'  | sed 's/\([0-9]*\),\([0-9]*\)\(.*\)/\1\2,\3/g' | sed s'/,\ *,/,/g'|  sed s'/([^,]*//g' > $(date +%m%d_result.csv )")
+
 print("results from today's run have been written and parsed.)
