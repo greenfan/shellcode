@@ -2,7 +2,7 @@
 # get a dd dump from the given host's given disk and create a compressed
 # image at the given target 
 #
-#  1: host e.g. somehost.somedomain
+#  1: host e.g. purple.com
 #  2: disk e.g. sda
 #  3: target e.g. image.gz
 #
