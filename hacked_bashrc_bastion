@@ -1,0 +1,39 @@
+#!/bin/bash
+[[ $- != *i* ]] && return
+handle_interrupt() {
+    tput setaf 2
+    tput dim
+    echo "system detection: User is refusing to assimilate."
+    tput sgr0
+    sleep 0.5
+}
+
+trap 'handle_interrupt' INT TSTP
+
+progress_bar() {
+    local width=30 percent=$1 filled=$((width * percent / 100))
+    printf "["
+    for ((i=0; i<filled; i++)); do printf "="; done
+    for ((i=filled; i<width; i++)); do printf " "; done
+    printf "] %d%%\r" "$percent"
+}
+
+clear; sleep 3
+tput setaf 7; echo -e "[rob@bastion ~]$ "; sleep 2
+clear; echo -e "\a"; sleep 1
+echo -e "[rob@bastion ~]$ cd Documents"; echo "bash: cd: Documents: No such file or directory"; sleep 0.5
+echo -e "[rob@bastion ~]$ ls -la"; sleep 0.1; tput cuu1; echo -e "[r0b@ba5t10n ~]$ l5 -1a"; sleep 0.1; tput cuu1; echo -e "[r?b@ba?t??n ~]$ ?? -??"; sleep 0.2; tput cuu1; tput rev; echo -e "[r̶o̶b̶@̶b̶a̶s̶t̶i̶o̶n̶ ~]$ l̶s̶ -̶l̶a̶"; tput sgr0; sleep 0.1; tput cuu1; echo -e "[ɹoq@ʇsıʇɐq ~]$ sl -al"; sleep 0.2; tput cuu1; echo -e "[***@****** ~]$ ## -##"; sleep 0.5
+sleep 1; echo -e "\a"
+tput setaf 2; tput dim; echo "...establishing ssh."; echo -e "\a"; sleep 0.4; tput sgr0; tput setaf 1; tput bold; echo "Decrypting user memories..."; sleep 0.4; tput setaf 2; tput dim; echo "...accessing hidden realms..."; sleep 0.5
+tput sgr0; tput setaf 3; echo "Initiating ssh connection to bastion."; sleep 0.2
+for file in "~/.bashrc" "/etc/shadow" "~/.ssh/id_rsa" "/home/rob/Documents/super_secret_data.txt"; do
+    echo "Uploading $file..."
+    for percent in {0..100..10}; do progress_bar $percent; sleep 0.02; done
+    echo ""; sleep 0.1
+done
+tput setaf 1; sleep 1; tput setaf 2; tput dim; echo "system detection...you are refusing to assimilate"; sleep 1.5
+tput bold; tput setaf 1; echo "RESISTANCE IS FUTILE."; echo -e "\a"; sleep 1
+tput sgr0; echo "Hacking complete. Establishing secure connection..."; sleep 1; clear; sleep 3
+echo "welcome logging in from bastion"
+trap - INT TSTP
+ssh localhost -p 5444
